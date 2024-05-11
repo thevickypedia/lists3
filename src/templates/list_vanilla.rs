@@ -1,8 +1,18 @@
 pub fn get_content() -> String {
     r###"<!DOCTYPE html>
+<!--suppress JSUnresolvedLibraryURL, JSUnresolvedReference -->
 <html lang="en">
 <head>
-    <title>Bucket listing</title>
+    <title>Rustic Bucket Listing</title>
+    <meta property="og:type" content="FileBrowser">
+    <meta content="This is a filebrowser for S3 buckets" name="description">
+    <meta name="keywords" content="AWS, S3, Rust, FileBrowser, HTML, CSS, JavaScript, Jinja2">
+    <meta name="author" content="Vignesh Rao">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <link name="favicon" property="og:image" rel="icon" href="https://thevickypedia.github.io/open-source/images/logo/rust.ico">
+    <link name="apple-touch-icon" property="og:image" rel="apple-touch-icon" href="https://thevickypedia.github.io/open-source/images/logo/rust.png">
+    <meta http-equiv="content-type" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="refresh" content="no-cache">
     <!-- CSS and JS for night mode -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://thevickypedia.github.io/open-source/nightmode/night.js" defer></script>
@@ -64,7 +74,8 @@ pub fn get_content() -> String {
         function getList(bucketName, regionName, folderNames, ignoreObjects) {
             let origin = `http://${bucketName}.s3-${regionName}.amazonaws.com`
             let responseType = "application/xml"
-            let endpoint = `https://jarvis.vigneshrao.com/proxy?origin=${origin}&output=${responseType}`
+            let proxy = "{{ proxy_server }}"
+            let endpoint = `${proxy}?origin=${origin}&output=${responseType}`
             http.open('get', endpoint, true)
             http.onreadystatechange = function () {
                 handleList(folderNames, ignoreObjects)

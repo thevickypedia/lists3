@@ -10,14 +10,19 @@ mod templates;
 mod squire;
 mod aws;
 
-async fn generate_html(config: &squire::settings::Config, region: &Region) {
+async fn generate_html(
+    config: &squire::settings::Config,
+    region: &Region
+) {
     let jinja = templates::environment();
-    let list_object = jinja.get_template("list-s3").unwrap();
+    let template_string = format!("list-s3-{}", config.style);
+    let list_object = jinja.get_template(template_string.as_str()).unwrap();
     let html_data = list_object.render(minijinja::context!(
         bucket_name => config.bucket,
         region_name => region.to_string(),
         folder_names => config.prefix,
-        ignore_objects => config.ignore
+        ignore_objects => config.ignore,
+        proxy_server => config.proxy.to_string(),
     ));
     let mut file = match File::create(&config.filename) {
         Ok(file) => file,
