@@ -127,17 +127,12 @@ jobs:
             command: build
 
           - release_for: macOS-x86_64
-            os: macOS-latest
+            os:
+              - self-hosted
+              - Darwin
             target: x86_64-apple-darwin
             bin: ${{ needs.release.outputs.bin-name }}
             name: ${{ needs.release.outputs.pkg-name }}-Darwin-x86_64.tar.gz
-            command: build
-
-          - release_for: RaspberryPi
-            os: ubuntu-20.04
-            target: arm-unknown-linux-gnueabihf
-            bin: ${{ needs.release.outputs.bin-name }}
-            name: ${{ needs.release.outputs.pkg-name }}-RaspberryPi.tar.gz
             command: build
 
     name: Upload asset for ${{ matrix.platform.release_for }}
@@ -157,7 +152,6 @@ jobs:
           printf '*%.0s' {1..60} && printf "\n"
           echo "Updated rust version: $(rustc --version)"
           printf '*%.0s' {1..60} && printf "\n"
-        shell: bash
 
       - name: Install OpenSSL static for Windows
         # https://github.com/sfackler/rust-openssl/issues/1086
@@ -170,7 +164,6 @@ jobs:
           echo ("vcpkg_dir=" + $pwd) >> $env:GITHUB_ENV
           .\bootstrap-vcpkg.bat
           .\vcpkg.exe install openssl:x64-windows-static
-        shell: bash
 
       - name: Build
         run: |
@@ -189,7 +182,6 @@ jobs:
           mkdir -p ${{ needs.release.outputs.pkg-name }}
           cp target/release/${{ matrix.platform.bin }} ${{ needs.release.outputs.pkg-name }}/${{ matrix.platform.bin }}
           Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ needs.release.outputs.pkg-name }}/
-        shell: pwsh
 
       - name: Copy Artifacts (macOS/Ubuntu)
         if: ${{ matrix.platform.os != 'windows-latest' }}
@@ -197,7 +189,6 @@ jobs:
           mkdir -p ${{ needs.release.outputs.pkg-name }}
           cp target/release/${{ matrix.platform.bin }} ${{ needs.release.outputs.pkg-name }}/${{ matrix.platform.bin }}
           tar -zcvf ${{ matrix.platform.name }} ${{ needs.release.outputs.pkg-name }}/
-        shell: bash
 
       - name: Upload Asset to Release
         run: |
