@@ -189,7 +189,14 @@ pub fn get_content() -> String {
             data.rows.forEach(rowData => {
                 const tr = jQuery('<tr>');
                 rowData.forEach(function (cellData, i) {
-                    const td = $('<td>').text(i === 1 ? sizeConverter(cellData) : cellData);
+                    const td = jQuery('<td>');
+                    if (i === 0) {
+                        td.html(`<a href="${cellData}">${cellData}</a>`);
+                    } else if (i === 1) {
+                        td.text(sizeConverter(cellData));
+                    } else {
+                        td.text(cellData);
+                    }
                     tr.append(td);
                 });
                 tableBody.append(tr);

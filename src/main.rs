@@ -42,6 +42,7 @@ async fn generate_html(
 
 #[tokio::main]
 async fn main() {
+    // todo: too many print statements, keep one and remove the rest (probably colored)
     let metadata = squire::constant::build_info();
     let config = squire::parser::arguments(&metadata);
 

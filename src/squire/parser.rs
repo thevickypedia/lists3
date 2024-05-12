@@ -22,94 +22,91 @@ pub fn arguments(
     let mut proxy = String::new();
     let mut style = String::new();
 
-    // todo: make this a HashMap or a Struct instead of recreating flags for everything
     // Loop through the command-line arguments and parse them.
     let mut i = 1; // Start from the second argument (args[0] is the program name).
     while i < args.len() {
         match args[i].as_str() {
             "-h" | "--help" => {
                 let helper = "lists3 takes the following arguments\n\n\
-                --bucket/-b: Bucket name for which listing has to be created\tMANDATORY!!\n\
-                --region/-r: Region name where the bucket is present\t\tFallback: Default Region\n\
-                --prefix/-p: S3 prefix name to filter (eg: '[\"github/\"]')\tFallback: []\n\
-                --ignore/-i: Objects to be ignored (eg: '[\"github/.DS_Store\"]')\tFallback: []\n\
-                --filename/-f: Object name to upload in s3 (eg: list.html)\tFallback: list\n\
-                --proxy/-P: Proxy server's path (eg: https://example.com/proxy)\tFallback: https://jarvis.vigneshrao.com/proxy\n\
-                --style/-s: Styling for the UI (eg: vanilla)\tFallback: bootstrap\n\
-                --version/-v: Get the package version.\n".to_string();
+                --bucket: Bucket name for which listing has to be created\tMANDATORY!!\n\
+                --region: Region name where the bucket is present\t\tFallback: Default Region\n\
+                --prefix: S3 prefix name to filter (eg: '[\"github/\"]')\tFallback: []\n\
+                --ignore: Objects to be ignored (eg: '[\"github/.DS_Store\"]')\tFallback: []\n\
+                --filename: Object name to upload in s3 (eg: list.html)\tFallback: list\n\
+                --proxy: Proxy server's path (eg: https://example.com/proxy)\tFallback: https://jarvis.vigneshrao.com/proxy\n\
+                --style: Styling for the UI (eg: vanilla)\tFallback: bootstrap\n\
+                --version: Get the package version.\n".to_string();
                 println!("Usage: {} [OPTIONS]\n\n{}", args[0], helper);
                 exit(0)
             }
             "-V" | "-v" | "--version" => {
                 version = true;
             }
-            "-b" | "--bucket" => {
+            "--bucket" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     bucket = args[i].clone();
                 } else {
-                    println!("--bucket requires a value.");
+                    eprintln!("--bucket requires a value.");
                     exit(1)
                 }
             }
-            "-r" | "--region" => {
+            "--region" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     region = args[i].clone();
                 } else {
-                    println!("--region requires a value.");
+                    eprintln!("--region requires a value.");
                     exit(1)
                 }
             }
-            "-p" | "--prefix" => {
+            "--prefix" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     prefix = args[i].clone();
                 } else {
-                    println!("--prefix requires a value.");
+                    eprintln!("--prefix requires a value.");
                     exit(1)
                 }
             }
-            "-i" | "--ignore" => {
+            "--ignore" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     ignore = args[i].clone();
                 } else {
-                    println!("--ignore requires a value.");
+                    eprintln!("--ignore requires a value.");
                     exit(1)
                 }
             }
-            "-f" | "--filename" => {
+            "--filename" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     filename = args[i].clone();
                 } else {
-                    println!("--filename requires a value.");
+                    eprintln!("--filename requires a value.");
                     exit(1)
                 }
             }
-            // todo: probably use a different flag instead of repeating shortcut -P
-            //  or change --prefix to --directory/--object
-            "-P" | "--proxy" => {
+            "--proxy" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     proxy = args[i].clone();
                 } else {
-                    println!("--proxy requires a value.");
+                    eprintln!("--proxy requires a value.");
                     exit(1)
                 }
             }
-            "-s" | "--style" => {
+            "--style" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     style = args[i].clone();
                 } else {
-                    println!("--style requires a value.");
+                    eprintln!("--style requires a value.");
                     exit(1)
                 }
             }
             _ => {
-                println!("Unknown argument: {}", args[i]);
+                eprintln!("Unknown argument: {}", args[i]);
                 exit(1)
             }
         }

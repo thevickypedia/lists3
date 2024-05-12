@@ -35,17 +35,14 @@ fn parse_vec(value: &str) -> Option<Vec<String>> {
     }
 }
 
-fn parse_url(string: &String) -> Url {
+fn parse_url(string: &str) -> Url {
     if string.is_empty() {
         return Url::parse("https://jarvis.vigneshrao.com/proxy").unwrap()
     }
-    match Url::parse(string) {
-        Ok(url) => return url,
-        Err(err) => {
-            eprintln!("Parse error: {:?}", err);
-            exit(1)
-        }
-    }
+    Url::parse(string).unwrap_or_else(|err| {
+        eprintln!("Parse error: {:?}", err);
+        exit(1)
+    })
 }
 
 pub fn parse_config(
@@ -61,14 +58,14 @@ pub fn parse_config(
         eprintln!("\n--bucket\n\tBucket name is mandatory!!\n");
         exit(1)
     }
-    let parsed_prefix = parse_vec(&prefix).unwrap_or(Vec::new());
-    let parsed_ignore = parse_vec(&ignore).unwrap_or(Vec::new());
+    let parsed_prefix = parse_vec(&prefix).unwrap_or_default();
+    let parsed_ignore = parse_vec(&ignore).unwrap_or_default();
     let parsed_url = parse_url(&proxy);
 
     let styling = vec!["bootstrap".to_string(), "vanilla".to_string()];
     let parsed_style;
     if style.is_empty() {
-        parsed_style = styling.get(0).unwrap().to_string()
+        parsed_style = styling.first().unwrap().to_string()
     } else if styling.contains(&style) {
         parsed_style = style.clone().to_lowercase()
     } else {

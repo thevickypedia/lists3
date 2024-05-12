@@ -22,15 +22,14 @@ pub async fn get_client(
 pub async fn get_region(
     config: &squire::settings::Config
 ) -> Region {
-    let region;
     if config.region.is_empty() {
-        let region_provider = RegionProviderChain::default_provider().or_else("us-east-1");
+        let region_provider = RegionProviderChain::default_provider()
+            .or_else("us-east-1");
         // let region_name = region_provider.region().await.unwrap().to_string();
-        region = region_provider.region().await.unwrap();
+        region_provider.region().await.unwrap()
     } else {
-        region = Region::new(config.region.to_string());
+        Region::new(config.region.to_string())
     }
-    region
 }
 
 pub async fn get_buckets(
@@ -50,6 +49,7 @@ pub async fn upload_object(
     bucket_name: &String,
     file_name: &String,
 ) {
+    // todo: check if data can be written directly instead from a file
     let body = ByteStream::from_path(Path::new(file_name)).await;
     match client
         .put_object()
