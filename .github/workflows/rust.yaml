@@ -40,6 +40,7 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         id: set-release-flag
         run: |
+          git pull
           current_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
           echo "Current Package Version: ${current_version}"
           version_exists=false
