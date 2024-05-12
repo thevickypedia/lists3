@@ -3,14 +3,13 @@ File Browser for S3 buckets
 
 ### Arguments
 
-- **bucket**: Bucket name for which listing has to be created.
-- **region**: Region name where the bucket is present. **Fallback:** Default Region
-- **filter**: S3 prefix to filter (**eg:** `["github/"]`) **Fallback:** `[]`
-- **ignore**: Objects to be ignored (**eg:** `["github/.DS_Store"]`) **Fallback:** `[]`
-- **object**: Object name to upload in s3 (**eg:** `list.html`) **Fallback:** `list`
-- **proxy**: Proxy server's path (**eg:** https://example.com/proxy) **Fallback:** https://jarvis.vigneshrao.com/proxy
-- **style**: Styling for the UI (**eg:** `vanilla`) **Fallback:** bootstrap
-- **version**: Get the package version.
+- **--bucket / -b**: Bucket name for which listing has to be created.
+- **--region / -r**: Region name where the bucket is present. **Fallback:** Default Region
+- **--filter / -f**: S3 prefix to filter (**eg:** `["github/"]`) **Fallback:** `[]`
+- **--ignore / -i**: Objects to be ignored (**eg:** `["github/.DS_Store"]`) **Fallback:** `[]`
+- **--object / -o**: Object name to upload in s3 (**eg:** `list.html`) **Fallback:** `list`
+- **--proxy / -p**: Proxy server's path (**eg:** https://example.com/proxy) **Fallback:** https://jarvis.vigneshrao.com/proxy
+- **--style / -s**: Styling for the UI (**eg:** `vanilla`) **Fallback:** bootstrap
 
 ### Sample
 
