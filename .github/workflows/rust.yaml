@@ -1,0 +1,208 @@
+name: Build and Upload Artifact
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+#    paths-ignore:
+#      - '.github/**'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    runs-on: self-hosted
+    permissions:
+      contents: write
+    outputs:
+      release-id: ${{ steps.create-release.outputs.release_id }}
+      release-flag: ${{ steps.set-release-flag.outputs.release_flag }}
+      pkg-name: ${{ steps.get-package-info.outputs.pkg_name }}
+      bin-name: ${{ steps.get-package-info.outputs.bin_name }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Get Package Name
+        id: get-package-info
+        run: |
+          pkg_name=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
+          echo "Package Name: $pkg_name"
+          echo "pkg_name=$pkg_name" >> $GITHUB_ENV
+          echo "pkg_name=$pkg_name" >> "$GITHUB_OUTPUT"
+
+          bin_name=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].targets[] | select(.kind[] == "bin" or .crate_types[] == "bin") | .name')
+          echo "Bin Name: $bin_name"
+          echo "bin_name=$bin_name" >> $GITHUB_ENV
+          echo "bin_name=$bin_name" >> "$GITHUB_OUTPUT"
+        shell: bash
+      - name: Set Release Flag  # Release flag is set only for a push on main branch
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        id: set-release-flag
+        run: |
+          current_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          echo "Current Package Version: ${current_version}"
+          if git tag --list | grep -q "$version"; then
+            version_exists=true
+          else
+            version_exists=false
+          fi
+          if [ "$version_exists" = true ]; then
+            echo "Version $current_version exists in tags, setting release flag to 'false'"
+            echo "release=false" >> $GITHUB_ENV
+            echo "release_flag=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Version $current_version does not exist in crates.io, setting release flag to 'true'"
+            echo "release=true" >> $GITHUB_ENV
+            echo "release_flag=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "pkg_version=$current_version" >> $GITHUB_ENV
+        shell: bash
+      - name: Create New Release
+        id: create-release
+        run: |
+          if [ "${{ env.release }}" == "true" ]; then
+            echo "Creating PROD release"
+            release_tag="${{ env.pkg_version }}"
+            cargo_prerelease=("alpha" "beta" "rc")
+            prerelease=false
+            for cargo_pre in "${cargo_prerelease[@]}"; do
+              if [[ $pkg_version == *"$cargo_pre"* ]]; then
+                prerelease=true
+                break
+              fi
+            done
+          else
+            echo "Creating TEST release"
+            epoch="$(date +%s)"
+            current_version=${{ env.pkg_version }}
+            echo "Current version: $current_version"
+            version_as_int=$((10#${current_version//./}))
+            ((version_as_int++))
+            major=$((version_as_int / 100))
+            minor=$((version_as_int % 100 / 10))
+            patch=$((version_as_int % 10))
+            new_version="$major.$minor.$patch"
+            echo "Bumped version to: $new_version"
+            release_tag="${new_version}-prerelease-${epoch}"
+            prerelease=true
+          fi
+
+          echo "Release Tag: $release_tag"
+          commit_msg="[$release_tag](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+          release_data="{\"tag_name\":\"$release_tag\",\"name\":\"$release_tag\",\"body\":\"$commit_msg\",\"draft\":false,\"prerelease\":$prerelease}"
+          echo "Payload: $release_data"
+          response=$(curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
+            -d "$release_data" \
+            "https://api.github.com/repos/${{ github.repository }}/releases")
+
+          echo "Response: $response"
+          release_id=$(echo $response | jq -r .id)
+          if [ "$release_id" = "null" ] || [ -z "$release_id" ]; then
+            echo "Error: release_id is null. Exiting with code 1."
+            exit 1
+          fi
+          echo "Release ID: $release_id"
+          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  upload_assets:
+    needs: release
+    strategy:
+      matrix:
+        platform:
+          - release_for: Linux-x86_64
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            bin: ${{ needs.release.outputs.bin-name }}
+            name: ${{ needs.release.outputs.pkg-name }}-Linux-x86_64.tar.gz
+            command: build
+
+          - release_for: Windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            bin: ${{ needs.release.outputs.bin-name }}.exe
+            name: ${{ needs.release.outputs.pkg-name }}-Windows-x86_64.zip
+            command: build
+
+          - release_for: macOS-x86_64
+            os: macOS-latest
+            target: x86_64-apple-darwin
+            bin: ${{ needs.release.outputs.bin-name }}
+            name: ${{ needs.release.outputs.pkg-name }}-Darwin-x86_64.tar.gz
+            command: build
+
+          - release_for: RaspberryPi
+            os: ubuntu-20.04
+            target: arm-unknown-linux-gnueabihf
+            bin: ${{ needs.release.outputs.bin-name }}
+            name: ${{ needs.release.outputs.pkg-name }}-RaspberryPi.tar.gz
+            command: build
+
+    name: Upload asset for ${{ matrix.platform.release_for }}
+    runs-on: ${{ matrix.platform.os }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Update Rust
+        # print it with style
+        run: |
+          printf '*%.0s' {1..60} && printf "\n"
+          echo "Existing rust version: $(rustc --version)"
+          printf '*%.0s' {1..60} && printf "\n\n"
+          rustup update && printf "\n"
+          printf '*%.0s' {1..60} && printf "\n"
+          echo "Updated rust version: $(rustc --version)"
+          printf '*%.0s' {1..60} && printf "\n"
+        shell: bash
+
+      - name: Install OpenSSL static for Windows
+        # https://github.com/sfackler/rust-openssl/issues/1086
+        if: ${{ matrix.platform.os == 'windows-latest' }}
+        run: |
+          mkdir \Tools
+          cd \Tools
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          echo ("vcpkg_dir=" + $pwd) >> $env:GITHUB_ENV
+          .\bootstrap-vcpkg.bat
+          .\vcpkg.exe install openssl:x64-windows-static
+        shell: bash
+
+      - name: Build
+        run: |
+          if [ "${{ matrix.platform.os }}" == "windows-latest" ]; then
+            echo "Setting vcpkg env vars for OpenSSL in Windows"
+            export OPENSSL_DIR="${{ env.vcpkg_dir }}\installed\x64-windows-static"
+            export OPENSSL_STATIC="Yes"
+            export VCPKG_ROOT="${{ env.vcpkg_dir }}\installed\x64-windows-static"
+          fi
+          cargo build --release
+        shell: bash
+
+      - name: Copy Artifacts (Windows)
+        if: ${{ matrix.platform.os == 'windows-latest' }}
+        run: |
+          mkdir -p ${{ needs.release.outputs.pkg-name }}
+          cp target/release/${{ matrix.platform.bin }} ${{ needs.release.outputs.pkg-name }}/${{ matrix.platform.bin }}
+          Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ needs.release.outputs.pkg-name }}/
+        shell: pwsh
+
+      - name: Copy Artifacts (macOS/Ubuntu)
+        if: ${{ matrix.platform.os != 'windows-latest' }}
+        run: |
+          mkdir -p ${{ needs.release.outputs.pkg-name }}
+          cp target/release/${{ matrix.platform.bin }} ${{ needs.release.outputs.pkg-name }}/${{ matrix.platform.bin }}
+          tar -zcvf ${{ matrix.platform.name }} ${{ needs.release.outputs.pkg-name }}/
+        shell: bash
+
+      - name: Upload Asset to Release
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
+          -H "Content-Type: application/octet-stream" \
+          --data-binary @"${{ matrix.platform.name }}" \
+          "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.release.outputs.release-id }}/assets?name=${{ matrix.platform.name }}"
+        shell: bash
