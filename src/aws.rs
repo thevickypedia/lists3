@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::path::Path;
 use std::process::exit;
 
 use aws_config::meta::region::RegionProviderChain;
@@ -47,21 +46,23 @@ pub async fn get_buckets(
 pub async fn upload_object(
     client: &Client,
     bucket_name: &String,
+    data: &String,
     file_name: &String,
 ) {
-    // todo: check if data can be written directly instead from a file
-    let body = ByteStream::from_path(Path::new(file_name)).await;
+    let bytes = data.to_string().into_bytes();
+    let bytes_static: &'static [u8] = unsafe { std::mem::transmute(bytes.as_slice()) };
+    let body = ByteStream::from_static(bytes_static);
     match client
         .put_object()
         .bucket(&bucket_name.to_string())
         .key(&file_name.to_string())  // object name
-        .body(body.unwrap())
+        .body(body)
         .content_type("text/html")
         .send()
         .await {
         Ok(_) => println!("{:?} has been uploaded as HTML", &file_name),
         Err(err) => {
-            eprintln!("{:?}", err.source().unwrap());
+            eprintln!("Unable to upload to S3: {:?}", err.source().unwrap());
             exit(1)
         }
     }

@@ -1,10 +1,6 @@
-use std::error::Error;
-use std::fs::File;
-use std::io::Write;
 use std::process::exit;
 
 use aws_config::Region;
-use tokio::fs;
 
 mod templates;
 mod squire;
@@ -12,37 +8,23 @@ mod aws;
 
 async fn generate_html(
     config: &squire::settings::Config,
-    region: &Region
-) {
+    region: &Region,
+) -> String {
     let jinja = templates::environment();
     let template_string = format!("list-s3-{}", config.style);
     let list_object = jinja.get_template(template_string.as_str()).unwrap();
     let html_data = list_object.render(minijinja::context!(
         bucket_name => config.bucket,
         region_name => region.to_string(),
-        folder_names => config.prefix,
+        folder_names => config.filter,
         ignore_objects => config.ignore,
         proxy_server => config.proxy.to_string(),
     ));
-    let mut file = match File::create(&config.filename) {
-        Ok(file) => file,
-        Err(err) => {
-            eprintln!("{:?}", err.source());
-            exit(1)
-        }
-    };
-    match file.write_all(html_data.unwrap().as_bytes()) {
-        Ok(_) => println!("{:?} has been generated as HTML", &config.filename),
-        Err(err) => {
-            eprintln!("Failed to write data into {}: {:?}", &config.filename, err);
-            exit(1)
-        }
-    }
+    html_data.unwrap()
 }
 
 #[tokio::main]
 async fn main() {
-    // todo: too many print statements, keep one and remove the rest (probably colored)
     let metadata = squire::constant::build_info();
     let config = squire::parser::arguments(&metadata);
 
@@ -66,10 +48,6 @@ async fn main() {
                   &config.bucket, bucket_names);
         exit(1)
     }
-    generate_html(&config, &region).await;
-    aws::upload_object(&aws_client, &config.bucket, &config.filename).await;
-    match fs::remove_file(&config.filename).await {
-        Ok(_) => println!("{:?} has been removed", &config.filename),
-        Err(err) => eprintln!("{:?}", err)
-    }
+    let data = generate_html(&config, &region).await;
+    aws::upload_object(&aws_client, &config.bucket, &data, &config.object).await;
 }

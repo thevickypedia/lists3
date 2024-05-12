@@ -17,6 +17,25 @@ pub fn get_content() -> String {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://thevickypedia.github.io/open-source/nightmode/night.js" defer></script>
     <link rel="stylesheet" type="text/css" href="https://thevickypedia.github.io/open-source/nightmode/night.css">
+    <style>
+        .corner {
+            position: absolute;
+            top: 3%;
+            right: 1px;
+            bottom: 3%;
+            display: inline-flex;
+        }
+
+        .corner p {
+            font-size: 14px;
+            font-family: 'Courier New', monospace !important;
+            margin-right: 15px; /* Spacing between the joining <p> tags */
+        }
+
+        small {
+            margin-left: 10px;
+        }
+    </style>
     <script>
         function getSpace(s, l) {
             let ret = "";
@@ -331,18 +350,15 @@ pub fn get_content() -> String {
     folderNames={{ folder_names }},
     ignoreObjects={{ ignore_objects }}
 );'>
+<div class="corner">
+    <p id="bucketSize"></p>
+    <p id="bucketCount"></p>
+    <p id="filteredSize"></p>
+    <p id="filterCount"></p>
+</div>
+<br>
 <div class="toggler fa fa-moon-o"></div>
 <pre><small>Amazon S3 Bucket list v2</small></pre>
-<table>
-    <thead>
-    <tr>
-        <td id="bucketSize"></td>
-        <td id="bucketCount"></td>
-        <td id="filteredSize"></td>
-        <td id="filterCount"></td>
-    </tr>
-    </thead>
-</table>
 <table id="bucket_table">
     <thead>
     <tr>

@@ -34,9 +34,13 @@ pub fn get_content() -> String {
         }
 
         .corner p {
-            font-size: 12px;
-            font-style: italic;
-            margin-right: 10px; /* Spacing between the joining <p> tags */
+            font-size: 14px;
+            font-family: 'Courier New', monospace !important;
+            margin-right: 15px; /* Spacing between the joining <p> tags */
+        }
+
+        small {
+            margin-left: 10px;
         }
     </style>
     <script>
@@ -253,13 +257,14 @@ pub fn get_content() -> String {
     proxyServer="{{ proxy_server }}"
 );'>
 <div class="corner">
-    <p id="bucketSize"><i></i></p>
-    <p id="bucketCount"><i></i></p>
-    <p id="filteredSize"><i></i></p>
-    <p id="filterCount"><i></i></p>
+    <p id="bucketSize"></p>
+    <p id="bucketCount"></p>
+    <p id="filteredSize"></p>
+    <p id="filterCount"></p>
 </div>
 <br>
 <div class="toggler fa fa-moon-o"></div>
+<pre><small>Amazon S3 Bucket list v2</small></pre>
 <div class="container mt-5">
     <div class="input-group mb-4">
         <!--suppress HtmlFormInputWithoutLabel -->

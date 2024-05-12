@@ -5,9 +5,9 @@ use url::Url;
 pub struct Config {
     pub bucket: String,
     pub region: String,
-    pub prefix: Vec<String>,
+    pub filter: Vec<String>,
     pub ignore: Vec<String>,
-    pub filename: String,
+    pub object: String,
     pub proxy: Url,
     pub style: String
 }
@@ -48,9 +48,9 @@ fn parse_url(string: &str) -> Url {
 pub fn parse_config(
     bucket: String,
     region: String,
-    prefix: String,
+    filter: String,
     ignore: String,
-    filename: String,
+    object: String,
     proxy: String,
     style: String
 ) -> Config {
@@ -58,7 +58,7 @@ pub fn parse_config(
         eprintln!("\n--bucket\n\tBucket name is mandatory!!\n");
         exit(1)
     }
-    let parsed_prefix = parse_vec(&prefix).unwrap_or_default();
+    let parsed_filter = parse_vec(&filter).unwrap_or_default();
     let parsed_ignore = parse_vec(&ignore).unwrap_or_default();
     let parsed_url = parse_url(&proxy);
 
@@ -76,9 +76,9 @@ pub fn parse_config(
     Config {
         bucket,
         region,
-        prefix: parsed_prefix,
+        filter: parsed_filter,
         ignore: parsed_ignore,
-        filename,
+        object,
         proxy: parsed_url,
         style: parsed_style
     }
