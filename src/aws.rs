@@ -4,7 +4,7 @@ use std::process::exit;
 use aws_config::meta::region::RegionProviderChain;
 use aws_config::Region;
 use aws_sdk_s3::Client;
-use aws_sdk_s3::primitives::ByteStream;
+use aws_sdk_s3::primitives::{ByteStream, SdkBody};
 use aws_sdk_s3::types::Bucket;
 
 use crate::squire;
@@ -49,14 +49,12 @@ pub async fn upload_object(
     data: &String,
     file_name: &String,
 ) {
-    let bytes = data.to_string().into_bytes();
-    let bytes_static: &'static [u8] = unsafe { std::mem::transmute(bytes.as_slice()) };
-    let body = ByteStream::from_static(bytes_static);
+    let byte_stream = ByteStream::new(SdkBody::from(data.to_owned()));
     match client
         .put_object()
         .bucket(&bucket_name.to_string())
         .key(&file_name.to_string())  // object name
-        .body(body)
+        .body(byte_stream)
         .content_type("text/html")
         .send()
         .await {
