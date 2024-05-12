@@ -34,7 +34,6 @@ jobs:
 
           bin_name=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].targets[] | select(.kind[] == "bin" or .crate_types[] == "bin") | .name')
           echo "Bin Name: $bin_name"
-          echo "bin_name=$bin_name" >> $GITHUB_ENV
           echo "bin_name=$bin_name" >> "$GITHUB_OUTPUT"
         shell: bash
       - name: Set Release Flag  # Release flag is set only for a push on main branch
@@ -43,17 +42,16 @@ jobs:
         run: |
           current_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
           echo "Current Package Version: ${current_version}"
-          if git tag --list | grep -q "$version"; then
+          version_exists=false
+          if git tag --list | grep "$current_version"; then
             version_exists=true
-          else
-            version_exists=false
           fi
-          if [ "$version_exists" = true ]; then
+          if [ "$version_exists" == true ]; then
             echo "Version $current_version exists in tags, setting release flag to 'false'"
             echo "release=false" >> $GITHUB_ENV
             echo "release_flag=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Version $current_version does not exist in crates.io, setting release flag to 'true'"
+            echo "Version $current_version does not exist in tags, setting release flag to 'true'"
             echo "release=true" >> $GITHUB_ENV
             echo "release_flag=true" >> "$GITHUB_OUTPUT"
           fi
@@ -113,14 +111,18 @@ jobs:
       matrix:
         platform:
           - release_for: Linux-x86_64
-            os: ubuntu-20.04
+            os:
+              - self-hosted
+              - Ubuntu
             target: x86_64-unknown-linux-gnu
             bin: ${{ needs.release.outputs.bin-name }}
             name: ${{ needs.release.outputs.pkg-name }}-Linux-x86_64.tar.gz
             command: build
 
           - release_for: Windows-x86_64
-            os: windows-latest
+            os:
+              - self-hosted
+              - Windows
             target: x86_64-pc-windows-msvc
             bin: ${{ needs.release.outputs.bin-name }}.exe
             name: ${{ needs.release.outputs.pkg-name }}-Windows-x86_64.zip
