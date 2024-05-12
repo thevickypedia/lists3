@@ -18,7 +18,7 @@ jobs:
       contents: write
     outputs:
       release-id: ${{ steps.create-release.outputs.release_id }}
-      release-flag: ${{ steps.set-release-flag.outputs.release_flag }}
+      release-flag: ${{ steps.set-release-flag.outputs.release }}
       pkg-name: ${{ steps.get-package-info.outputs.pkg_name }}
       bin-name: ${{ steps.get-package-info.outputs.bin_name }}
     steps:
@@ -29,68 +29,46 @@ jobs:
         run: |
           pkg_name=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
           echo "Package Name: $pkg_name"
-          echo "pkg_name=$pkg_name" >> $GITHUB_ENV
           echo "pkg_name=$pkg_name" >> "$GITHUB_OUTPUT"
 
           bin_name=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].targets[] | select(.kind[] == "bin" or .crate_types[] == "bin") | .name')
           echo "Bin Name: $bin_name"
-          echo "bin_name=$bin_name" >> $GITHUB_ENV
           echo "bin_name=$bin_name" >> "$GITHUB_OUTPUT"
+
+          pkg_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          echo "Package Version: $pkg_version"
+          echo "pkg_version=$pkg_version" >> $GITHUB_ENV
         shell: bash
       - name: Set Release Flag  # Release flag is set only for a push on main branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         id: set-release-flag
         run: |
-          current_version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
-          echo "Current Package Version: ${current_version}"
-          if git tag --list | grep -q "$version"; then
-            version_exists=true
-          else
-            version_exists=false
-          fi
-          if [ "$version_exists" = true ]; then
-            echo "Version $current_version exists in tags, setting release flag to 'false'"
+          git pull
+          if git tag --list | grep "${{ env.pkg_version }}"; then
+            echo "Version ${{ env.pkg_version }} exists in tags, setting release flag to 'false'"
             echo "release=false" >> $GITHUB_ENV
-            echo "release_flag=false" >> "$GITHUB_OUTPUT"
+            echo "release=false" >> "$GITHUB_OUTPUT"
           else
-            echo "Version $current_version does not exist in crates.io, setting release flag to 'true'"
+            echo "Version ${{ env.pkg_version }} does not exist in tags, setting release flag to 'true'"
             echo "release=true" >> $GITHUB_ENV
-            echo "release_flag=true" >> "$GITHUB_OUTPUT"
+            echo "release=true" >> "$GITHUB_OUTPUT"
           fi
-          echo "pkg_version=$current_version" >> $GITHUB_ENV
         shell: bash
       - name: Create New Release
         id: create-release
+        if: env.release == 'true'
         run: |
-          if [ "${{ env.release }}" == "true" ]; then
-            echo "Creating PROD release"
-            release_tag="${{ env.pkg_version }}"
-            cargo_prerelease=("alpha" "beta" "rc")
-            prerelease=false
-            for cargo_pre in "${cargo_prerelease[@]}"; do
-              if [[ $pkg_version == *"$cargo_pre"* ]]; then
-                prerelease=true
-                break
-              fi
-            done
-          else
-            echo "Creating TEST release"
-            epoch="$(date +%s)"
-            current_version=${{ env.pkg_version }}
-            echo "Current version: $current_version"
-            version_as_int=$((10#${current_version//./}))
-            ((version_as_int++))
-            major=$((version_as_int / 100))
-            minor=$((version_as_int % 100 / 10))
-            patch=$((version_as_int % 10))
-            new_version="$major.$minor.$patch"
-            echo "Bumped version to: $new_version"
-            release_tag="${new_version}-prerelease-${epoch}"
-            prerelease=true
-          fi
+          cargo_prerelease=("alpha" "beta" "rc")
+          prerelease=false
+          for cargo_pre in "${cargo_prerelease[@]}"; do
+            if [[ "${{ env.pkg_version }}" == *"$cargo_pre"* ]]; then
+              prerelease=true
+              break
+            fi
+          done
 
-          echo "Release Tag: $release_tag"
-          commit_msg="[$release_tag](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
+          echo "Release Tag: ${{ env.pkg_version }}"
+          commit_msg="[${{ env.pkg_version }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})"
           release_data="{\"tag_name\":\"$release_tag\",\"name\":\"$release_tag\",\"body\":\"$commit_msg\",\"draft\":false,\"prerelease\":$prerelease}"
           echo "Payload: $release_data"
           response=$(curl -X POST -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
@@ -113,29 +91,24 @@ jobs:
       matrix:
         platform:
           - release_for: Linux-x86_64
-            os: ubuntu-20.04
-            target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
             bin: ${{ needs.release.outputs.bin-name }}
             name: ${{ needs.release.outputs.pkg-name }}-Linux-x86_64.tar.gz
-            command: build
 
           - release_for: Windows-x86_64
             os: windows-latest
-            target: x86_64-pc-windows-msvc
             bin: ${{ needs.release.outputs.bin-name }}.exe
             name: ${{ needs.release.outputs.pkg-name }}-Windows-x86_64.zip
-            command: build
 
           - release_for: macOS-x86_64
             os:
               - self-hosted
               - Darwin
-            target: x86_64-apple-darwin
             bin: ${{ needs.release.outputs.bin-name }}
             name: ${{ needs.release.outputs.pkg-name }}-Darwin-x86_64.tar.gz
-            command: build
 
     name: Upload asset for ${{ matrix.platform.release_for }}
+    if: needs.release.outputs.release-flag == 'true'
     runs-on: ${{ matrix.platform.os }}
     permissions:
       contents: write
