@@ -1,7 +1,7 @@
 [package]
 name = "lists3"
-version = "0.0.1-a"
-description = "Service that creates file browsing capability for S3 buckets"
+version = "0.0.1"
+description = "Service that creates object listing functionality for S3 buckets"
 edition = "2021"
 authors = ["Vignesh Rao"]
 

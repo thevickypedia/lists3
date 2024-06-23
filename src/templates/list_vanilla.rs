@@ -13,10 +13,6 @@ pub fn get_content() -> String {
     <link name="apple-touch-icon" property="og:image" rel="apple-touch-icon" href="https://thevickypedia.github.io/open-source/images/logo/rust.png">
     <meta http-equiv="content-type" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="refresh" content="no-cache">
-    <!-- CSS and JS for night mode -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://thevickypedia.github.io/open-source/nightmode/night.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="https://thevickypedia.github.io/open-source/nightmode/night.css">
     <style>
         .corner {
             position: absolute;
@@ -91,6 +87,9 @@ pub fn get_content() -> String {
         let http = createRequestObject();
 
         function getList(bucketName, regionName, folderNames, ignoreObjects) {
+            let pretext = document.getElementById('pretext');
+            pretext.innerHTML = "Amazon S3 Bucket list v2";
+
             let origin = `http://${bucketName}.s3-${regionName}.amazonaws.com`
             let responseType = "application/xml"
             let proxy = "{{ proxy_server }}"
@@ -344,12 +343,13 @@ pub fn get_content() -> String {
         }
     </style>
 </head>
-<body translate="no" onLoad='getList(
+<body onLoad='getList(
     bucketName="{{ bucket_name }}",
     regionName="{{ region_name }}",
     folderNames={{ folder_names }},
     ignoreObjects={{ ignore_objects }}
 );'>
+<pre><small id="pretext"></small></pre>
 <div class="corner">
     <p id="bucketSize"></p>
     <p id="bucketCount"></p>
@@ -357,15 +357,13 @@ pub fn get_content() -> String {
     <p id="filterCount"></p>
 </div>
 <br>
-<div class="toggler fa fa-moon-o"></div>
-<pre><small>Amazon S3 Bucket list v2</small></pre>
 <table id="bucket_table">
     <thead>
     <tr>
-        <th><a href="javascript:getLinkSize()">Size</a></th>
-        <th><a href="javascript:getLinkLastmod()">Last Modified</a></th>
-        <th><a href="javascript:getLinkStorage()">Storage Class</a></th>
-        <th><a href="javascript:getLinkName()">Name</a></th>
+        <th><a style="color:#FFF" href="javascript:getLinkSize()">Size</a></th>
+        <th><a style="color:#FFF" href="javascript:getLinkLastmod()">Last Modified</a></th>
+        <th><a style="color:#FFF" href="javascript:getLinkStorage()">Storage Class</a></th>
+        <th><a style="color:#FFF" href="javascript:getLinkName()">Name</a></th>
         <!--<th><a href="?sort=name&sortdir=asc">Name</a></th>-->
     </tr>
     </thead>

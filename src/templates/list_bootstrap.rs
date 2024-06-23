@@ -13,10 +13,6 @@ pub fn get_content() -> String {
     <link name="apple-touch-icon" property="og:image" rel="apple-touch-icon" href="https://thevickypedia.github.io/open-source/images/logo/rust.png">
     <meta http-equiv="content-type" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="refresh" content="no-cache">
-    <!-- CSS and JS for night mode -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script type="text/javascript" src="https://thevickypedia.github.io/open-source/nightmode/night.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="https://thevickypedia.github.io/open-source/nightmode/night.css">
     <!-- CSS and JS for Bootstrap -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css">
@@ -179,6 +175,9 @@ pub fn get_content() -> String {
     </script>
     <script>
         function renderTable(bucketName, regionName, folderNames, ignoreObjects, proxyServer) {
+            let pretext = document.getElementById('pretext');
+            pretext.innerHTML = "Amazon S3 Bucket list v2";
+
             const data = getList(bucketName, regionName, folderNames, ignoreObjects, proxyServer);
 
             // Populate table headers
@@ -249,13 +248,14 @@ pub fn get_content() -> String {
         }
     </script>
 </head>
-<body translate="no" onLoad='renderTable(
+<body onLoad='renderTable(
     bucketName="{{ bucket_name }}",
     regionName="{{ region_name }}",
     folderNames={{ folder_names }},
     ignoreObjects={{ ignore_objects }},
     proxyServer="{{ proxy_server }}"
 );'>
+<pre><small id="pretext"></small></pre>
 <div class="corner">
     <p id="bucketSize"></p>
     <p id="bucketCount"></p>
@@ -263,8 +263,6 @@ pub fn get_content() -> String {
     <p id="filterCount"></p>
 </div>
 <br>
-<div class="toggler fa fa-moon-o"></div>
-<pre><small>Amazon S3 Bucket list v2</small></pre>
 <div class="container mt-5">
     <div class="input-group mb-4">
         <!--suppress HtmlFormInputWithoutLabel -->
