@@ -145,31 +145,12 @@ jobs:
           printf '*%.0s' {1..60} && printf "\n"
         shell: bash
 
-      - name: Install OpenSSL static for Windows
-        # https://github.com/sfackler/rust-openssl/issues/1086
-        if: startsWith(matrix.platform.os, 'windows')
-        run: |
-          mkdir \Tools
-          cd \Tools
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
-          echo ("vcpkg_dir=" + $pwd) >> $env:GITHUB_ENV
-          .\bootstrap-vcpkg.bat
-          .\vcpkg.exe install openssl:x64-windows-static
-        shell: pwsh
-
       - name: Build
         run: |
-          if [ "${{ matrix.platform.os }}" == "windows-latest" ]; then
-            echo "Setting vcpkg env vars for OpenSSL in Windows"
-            export OPENSSL_DIR="${{ env.vcpkg_dir }}\installed\x64-windows-static"
-            export OPENSSL_STATIC="Yes"
-            export VCPKG_ROOT="${{ env.vcpkg_dir }}\installed\x64-windows-static"
-          fi
           cargo build --release
         shell: bash
 
-      - name: Copy Artifacts (Windows)
+      - name: Compress and Copy Artifact (Windows)
         if: startsWith(matrix.platform.os, 'windows')
         run: |
           mkdir -p ${{ needs.release.outputs.pkg-name }}
@@ -177,7 +158,7 @@ jobs:
           Compress-Archive -DestinationPath ${{ matrix.platform.name }} -Path ${{ needs.release.outputs.pkg-name }}/
         shell: pwsh
 
-      - name: Copy Artifacts (macOS/Ubuntu)
+      - name: Compress and Copy Artifact (macOS/Ubuntu)
         if: "!startsWith(matrix.platform.os, 'windows')"
         run: |
           mkdir -p ${{ needs.release.outputs.pkg-name }}
