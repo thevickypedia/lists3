@@ -18,7 +18,7 @@ pub fn get_content() -> String {
             position: absolute;
             top: 3%;
             right: 1px;
-            bottom: 3%;
+            bottom: 97%;
             display: inline-flex;
         }
 
@@ -152,6 +152,22 @@ pub fn get_content() -> String {
             return filteredFiles;
         }
 
+        // Mask the full path in 'Object Name' column to improve readability
+        // This functionality is available only for objects filtered with `--filter` flag
+        function maskPath(objectName, folderNames) {
+            let stripped = objectName;
+            for (let folder of folderNames) {
+                if (objectName.startsWith(folder)) {
+                    stripped = objectName.slice(folder.length);
+                    break;
+                }
+            }
+            if (stripped.startsWith('/')) {
+                stripped = stripped.slice(1);
+            }
+            return stripped;
+        }
+
         function handleList(folderNames, ignoreObjects) {
             if (http.readyState === 4) { // Finished loading the response
                 let response = http.responseXML;
@@ -189,7 +205,7 @@ pub fn get_content() -> String {
                     let storageCell = document.createElement('td');
                     storageCell.innerHTML = storage;
                     let nameCell = document.createElement('td');
-                    nameCell.innerHTML = "<a href=\"" + name + "\">" + name + "</a>";
+                    nameCell.innerHTML = "<a href=\"" + name + "\">" + maskPath(name, folderNames) + "</a>";
                     row.appendChild(sizeCell);
                     row.appendChild(lastmodCell);
                     row.appendChild(storageCell);
@@ -296,7 +312,6 @@ pub fn get_content() -> String {
         function getLinkStorage() {
             window.location.href = "?sort=storage&sortdir=" + getNextSortDir('storage');
         }
-
 
     </script>
     <style>

@@ -25,7 +25,7 @@ pub fn get_content() -> String {
             position: absolute;
             top: 3%;
             right: 1px;
-            bottom: 3%;
+            bottom: 97%;
             display: inline-flex;
         }
 
@@ -174,6 +174,22 @@ pub fn get_content() -> String {
         }
     </script>
     <script>
+        // Mask the full path in 'Object Name' column to improve readability
+        // This functionality is available only for objects filtered with `--filter` flag
+        function maskPath(objectName, folderNames) {
+            let stripped = objectName;
+            for (let folder of folderNames) {
+                if (objectName.startsWith(folder)) {
+                    stripped = objectName.slice(folder.length);
+                    break;
+                }
+            }
+            if (stripped.startsWith('/')) {
+                stripped = stripped.slice(1);
+            }
+            return stripped;
+        }
+
         function renderTable(bucketName, regionName, folderNames, ignoreObjects, proxyServer) {
             let pretext = document.getElementById('pretext');
             pretext.innerHTML = "Amazon S3 Bucket list v2";
@@ -194,7 +210,7 @@ pub fn get_content() -> String {
                 rowData.forEach(function (cellData, i) {
                     const td = jQuery('<td>');
                     if (i === 0) {
-                        td.html(`<a href="${cellData}">${cellData}</a>`);
+                        td.html(`<a href="${cellData}">${maskPath(cellData, folderNames)}</a>`);
                     } else if (i === 1) {
                         td.text(sizeConverter(cellData));
                     } else {

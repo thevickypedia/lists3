@@ -27,16 +27,22 @@ pub fn arguments(
     while i < args.len() {
         match args[i].as_str() {
             "-h" | "--help" => {
-                let helper = "lists3 takes the following arguments\n\n\
-                --bucket/-b: Bucket name for which listing has to be created\tMANDATORY!!\n\
-                --region/-r: Region name where the bucket is present\t\tFallback: Default Region\n\
-                --filter/-f: S3 prefix to filter (eg: '[\"github/\"]')\tFallback: []\n\
-                --ignore/-i: Objects to be ignored (eg: '[\"github/.DS_Store\"]')\tFallback: []\n\
-                --object/-o: Object name to upload in s3 (eg: list.html)\tFallback: list\n\
-                --proxy/-p: Proxy server's path (eg: https://example.com/proxy)\tFallback: https://jarvis.vigneshrao.com/proxy\n\
-                --style/-s: Styling for the UI (eg: vanilla)\tFallback: bootstrap\n\
-                --version/-v/-V: Get the package version.\n".to_string();
-                println!("Usage: {} [OPTIONS]\n\n{}", args[0], helper);
+                let options: Vec<_> = vec![
+                    ("--bucket | -b", "Bucket name for which listing has to be created"),
+                    ("--region | -r", "Region name where the bucket is present"),
+                    ("--filter | -f", "S3 prefix to filter (eg: '[\"github/\"]')"),
+                    ("--ignore | -i", "Objects to be ignored (eg: '[\"github/.DS_Store\"]')"),
+                    ("--object | -o", "Object name to upload in s3 (eg: list.html)"),
+                    ("--proxy | -p", "Proxy server's path (eg: https://example.com/proxy)"),
+                    ("--style | -s", "Styling for the UI (eg: vanilla)"),
+                    ("--version | -v", "Get the package version.")
+                ].iter().cloned().collect();
+                let longest_key = options.iter().map(|(k, _)| k.len()).max().unwrap_or(0);
+                let pretext = "\n* ";
+                let choices: String = options.iter().map(|(k, v)| {
+                    format!("{}{} {}→ {}", pretext, k, "·".repeat(longest_key - k.len() + 8), v)
+                }).collect::<Vec<_>>().join("");
+                println!("Usage: {} [OPTIONS]\n\nlists3 takes the following arguments\n{}", args[0], choices);
                 exit(0)
             }
             "-V" | "-v" | "--version" => {
