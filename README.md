@@ -12,12 +12,12 @@
 <details>
 <summary><strong>Download pre-compiled OS specific executable</strong></summary>
 
-###### macOS
+###### macOS (Intel)
 ```shell
 curl -o lists3-darwin-amd64.tar.gz -LH "Accept: application/octet-stream" "https://github.com/thevickypedia/lists3/releases/latest/download/lists3-darwin-amd64.tar.gz"
 ```
 
-###### macOS - M1
+###### macOS (M1)
 ```shell
 curl -o lists3-darwin-arm64.tar.gz -LH "Accept: application/octet-stream" "https://github.com/thevickypedia/lists3/releases/latest/download/lists3-darwin-arm64.tar.gz"
 ```
@@ -27,9 +27,14 @@ curl -o lists3-darwin-arm64.tar.gz -LH "Accept: application/octet-stream" "https
 curl -o lists3-linux-amd64.tar.gz -LH "Accept: application/octet-stream" "https://github.com/thevickypedia/lists3/releases/latest/download/lists3-linux-amd64.tar.gz"
 ```
 
-###### Windows
+###### Windows (curl)
 ```shell
 curl -o lists3-windows-amd64.zip -LH "Accept: application/octet-stream" "https://github.com/thevickypedia/lists3/releases/latest/download/lists3-windows-amd64.zip"
+```
+
+###### Windows (Invoke-WebRequest)
+```shell
+Invoke-WebRequest -Uri https://github.com/thevickypedia/lists3/releases/latest/download/lists3-windows-amd64.zip -OutFile lists3-windows-amd64.zip
 ```
 </details>
 
@@ -57,7 +62,7 @@ curl -o lists3-windows-amd64.zip -LH "Accept: application/octet-stream" "https:/
 [https://crates.io/crates/lists3][crate]
 
 ### Cargo Docs - Official Runbook
-[https://docs.rs/crate/lists3][docs]
+[https://docs.rs/lists3/latest/lists3][docs]
 
 **Generator**
 ```shell
@@ -89,4 +94,4 @@ Licensed under the [MIT License][license]
 [crate]: https://crates.io/crates/lists3
 [gh-checks]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yml
 [crates-logo]: https://img.shields.io/crates/v/lists3.svg
-[docs]: https://docs.rs/crate/lists3
+[docs]: https://docs.rs/lists3/latest/lists3
