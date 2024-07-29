@@ -9,6 +9,15 @@ use aws_sdk_s3::types::Bucket;
 
 use crate::squire;
 
+/// Creates an AWS S3 client using the specified region.
+///
+/// # Arguments
+///
+/// * `region` - A reference to the AWS region to be used for the client.
+///
+/// # Returns
+///
+/// Returns an instance of `Client` configured for the specified region.
 pub async fn get_client(
     region: &Region
 ) -> Client {
@@ -18,6 +27,15 @@ pub async fn get_client(
     Client::new(&config)
 }
 
+/// Determines the AWS region to be used based on the provided configuration.
+///
+/// # Arguments
+///
+/// * `config` - Configuration settings passed as flags or env vars.
+///
+/// # Returns
+///
+/// Returns an instance of `Region` based on the configuration or the default provider.
 pub async fn get_region(
     config: &squire::settings::Config
 ) -> Region {
@@ -31,6 +49,15 @@ pub async fn get_region(
     }
 }
 
+/// Retrieves a list of all S3 buckets in the configured region.
+///
+/// # Arguments
+///
+/// * `client` - A reference to the AWS S3 client.
+///
+/// # Returns
+///
+/// Returns an `Option<Vec<Bucket>>` containing the list of buckets if successful.
 pub async fn get_buckets(
     client: &Client
 ) -> Option<Vec<Bucket>> {
@@ -43,6 +70,14 @@ pub async fn get_buckets(
     }
 }
 
+/// Uploads an object to the specified S3 bucket.
+///
+/// # Arguments
+///
+/// * `client` - A reference to the AWS S3 client.
+/// * `bucket_name` - The name of the bucket to upload the object to.
+/// * `data` - The content of the object to be uploaded.
+/// * `file_name` - The name of the object to be uploaded.
 pub async fn upload_object(
     client: &Client,
     bucket_name: &String,

@@ -46,7 +46,7 @@ jobs:
         id: set-release-flag
         run: |
           git pull
-          if git tag --list | grep "${{ env.pkg_version }}"; then
+          if git tag --list | grep "^${{ env.pkg_version }}$"; then
             echo "Version ${{ env.pkg_version }} exists in tags, setting release flag to 'false'"
             echo "release=false" >> $GITHUB_ENV
             echo "release=false" >> "$GITHUB_OUTPUT"
@@ -191,7 +191,7 @@ jobs:
       - release
       - upload_assets
     if: needs.release.outputs.release-flag == 'true'
-    runs-on: thevickypedia-lite
+    runs-on: thevickypedia-default
     steps:
       - uses: actions/checkout@v4
       - name: Update Rust

@@ -21,7 +21,7 @@ pub struct Config {
 ///
 /// # Panics
 ///
-/// If the value is present, but it is an invalid data-type.
+/// This function will print an error message and terminate the program if the value is present, but it is an invalid data-type.
 fn parse_vec(value: &str) -> Option<Vec<String>> {
     if value.is_empty() {
         return None;
@@ -42,6 +42,15 @@ fn parse_vec(value: &str) -> Option<Vec<String>> {
     }
 }
 
+/// Extracts the argument and parses it as a `Url`
+///
+/// # Returns
+///
+/// Returns a `Url` if the value is available.
+///
+/// # Panics
+///
+/// This function will print an error message and terminate the program if the value is not a valid URL.
 fn parse_url(string: &str) -> Url {
     if string.is_empty() {
         return Url::parse("https://jarvis.vigneshrao.com/proxy").unwrap()
@@ -52,6 +61,26 @@ fn parse_url(string: &str) -> Url {
     })
 }
 
+/// Parses the configuration for the application and returns a `Config` struct.
+///
+/// # Arguments
+///
+/// * `bucket` - The name of the S3 bucket. This is a mandatory field.
+/// * `region` - The AWS region where the bucket is located.
+/// * `filter` - A string representing filters to be applied, which will be parsed into a vector.
+/// * `ignore` - A string representing patterns to be ignored, which will be parsed into a vector.
+/// * `object` - The name of the object to be operated on.
+/// * `proxy` - The proxy URL to be used, which will be parsed.
+/// * `style` - The style option for the output. Expected values are "bootstrap" or "vanilla".
+///
+/// # Returns
+///
+/// Returns a `Config` struct populated with the parsed values.
+///
+/// # Panics
+///
+/// This function will print an error message and terminate the program if the `bucket` field is empty or if the `style`
+/// option is invalid.
 pub fn parse_config(
     bucket: String,
     region: String,

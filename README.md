@@ -1,12 +1,13 @@
+# ListS3
+
+[![made-with-rust][rust-logo]][rust-src-page]
+
 [![crates.io][crates-logo]][crate]
 
 [![build][gh-logo]][build]
 
 #### Summary
-[`lists3`][repo] is a self-hosted streaming engine, that can render media files via authenticated sessions.
-
-# ListS3
-File Browser for S3 buckets
+[`lists3`][repo] is a light-weight CLI tool to create a file browser for S3 buckets provisioning bucket listing.
 
 <details>
 <summary><strong>Download pre-compiled OS specific executable</strong></summary>
@@ -79,6 +80,7 @@ cargo clippy --no-deps --fix
 
 Licensed under the [MIT License][license]
 
+[rust-src-page]: https://www.rust-lang.org/
 [repo]: https://github.com/thevickypedia/lists3
 [license]: https://github.com/thevickypedia/lists3/blob/main/LICENSE
 [build]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yaml

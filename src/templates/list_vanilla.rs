@@ -1,3 +1,8 @@
+/// Loads the HTML content for listing S3 contents with vanilla JS template.
+///
+/// # Returns
+///
+/// Returns the HTML content as a `String`
 pub fn get_content() -> String {
     r###"<!DOCTYPE html>
 <!--suppress JSUnresolvedLibraryURL, JSUnresolvedReference -->

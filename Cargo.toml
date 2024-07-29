@@ -1,6 +1,6 @@
 [package]
 name = "lists3"
-version = "0.0.1"
+version = "0.0.2"
 description = "Service that creates object listing functionality for S3 buckets"
 edition = "2021"
 authors = ["Vignesh Rao"]
@@ -14,15 +14,26 @@ categories = ["filesystem", "embedded", "development-tools", "visualization"]
 include = ["/src", "LICENSE"]
 exclude = [".github", ".gitignore", "README.md"]
 
+[lib]
+name = "lists3"
+path = "src/lib.rs"
+
 [[bin]]
 name = "lists3"
 path = "src/main.rs"
 
+# Docs release queue
+# https://docs.rs/releases/queue
+# Verify docs locally
+# cargo doc --no-deps --document-private-items --open
+[package.metadata.docs.rs]
+rustdoc-args = ["--document-private-items"]
+
 [dependencies]
-minijinja = { version =  "2.0.1", features = ["loader"] }
-url = "2.5.0"
-serde = { version = "1.0.196", features = ["derive"] }
-serde_json = "1.0.113"
-aws-sdk-s3 = { version = "1", features = ["behavior-version-latest"] }
-aws-config = { version = "1", features = ["behavior-version-latest"] }
-tokio = { version = "1.37.0", features = ["full"] }
+minijinja = { version =  "2.1.0", features = ["loader"] }
+url = "2.5.2"
+serde = { version = "1.0.202", features = ["derive"] }
+serde_json = "1.0.121"
+aws-sdk-s3 = { version = "1.42.0", features = ["behavior-version-latest"] }
+aws-config = { version = "1.5.4", features = ["behavior-version-latest"] }
+tokio = { version = "1.39.2", features = ["full"] }
