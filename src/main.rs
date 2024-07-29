@@ -9,6 +9,7 @@ mod aws;
 async fn generate_html(
     config: &squire::settings::Config,
     region: &Region,
+    metadata: &squire::constant::MetaData
 ) -> String {
     let jinja = templates::environment();
     let template_string = format!("list-s3-{}", config.style);
@@ -19,6 +20,7 @@ async fn generate_html(
         folder_names => config.filter,
         ignore_objects => config.ignore,
         proxy_server => config.proxy.to_string(),
+        cargo_version => metadata.pkg_version
     ));
     html_data.unwrap()
 }
@@ -48,6 +50,6 @@ async fn main() {
                   &config.bucket, bucket_names);
         exit(1)
     }
-    let data = generate_html(&config, &region).await;
+    let data = generate_html(&config, &region, &metadata).await;
     aws::upload_object(&aws_client, &config.bucket, &data, &config.object).await;
 }

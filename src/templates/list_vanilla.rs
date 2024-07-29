@@ -88,7 +88,7 @@ pub fn get_content() -> String {
 
         function getList(bucketName, regionName, folderNames, ignoreObjects) {
             let pretext = document.getElementById('pretext');
-            pretext.innerHTML = "Amazon S3 Bucket list v2";
+            pretext.innerHTML = "<a href='https://crates.io/crates/lists3'>Rustic Bucket Listing - v{{ cargo_version }}</a>";
 
             let origin = `http://${bucketName}.s3-${regionName}.amazonaws.com`
             let responseType = "application/xml"
@@ -119,7 +119,7 @@ pub fn get_content() -> String {
                 if (!ignoreFlag) {
                     if (folderNames.length > 0) {
                         for (let k = 0; k < folderNames.length; k++) {
-                            if (fileName.startsWith(folderNames[k])) {
+                            if (fileName != folderNames[k] && fileName.startsWith(folderNames[k])) {
                                 filteredFiles.push(files[i]);
                                 filteredSize += parseInt(fileSize);
                             }

@@ -183,3 +183,27 @@ jobs:
           hyperlink="[${{ matrix.platform.release_for }}]($url)"
           echo "🚀 Built for $hyperlink in $time_taken seconds" >> $GITHUB_STEP_SUMMARY
         shell: bash
+
+  publish-crate:
+    needs:
+      - release
+      - upload_assets
+    if: needs.release.outputs.release-flag == 'true'
+    runs-on: thevickypedia-lite
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Rust
+        run: |
+          printf '*%.0s' {1..60} && printf "\n"
+          echo "Existing rust version: $(rustc --version)"
+          printf '*%.0s' {1..60} && printf "\n\n"
+          rustup update && printf "\n"
+          printf '*%.0s' {1..60} && printf "\n"
+          echo "Updated rust version: $(rustc --version)"
+          printf '*%.0s' {1..60} && printf "\n"
+        shell: bash
+      - name: Release Crate
+        run: |
+          cargo login ${{ secrets.CRATES_TOKEN }}
+          cargo publish --allow-dirty  # Set allow-dirty since building will create a /target folder that will be uncommitted in git
+        shell: bash

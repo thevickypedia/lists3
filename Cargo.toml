@@ -4,6 +4,7 @@ version = "0.0.1"
 description = "Service that creates object listing functionality for S3 buckets"
 edition = "2021"
 authors = ["Vignesh Rao"]
+license = "MIT"
 
 [[bin]]
 name = "lists3"
