@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Get Package Name
         id: get-package-info
         run: |

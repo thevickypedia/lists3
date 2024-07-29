@@ -5,6 +5,14 @@ description = "Service that creates object listing functionality for S3 buckets"
 edition = "2021"
 authors = ["Vignesh Rao"]
 license = "MIT"
+rust-version = "1.79.0"
+documentation = "https://docs.rs/crate/lists3"
+homepage = "https://github.com/thevickypedia/lists3"
+repository = "https://github.com/thevickypedia/lists3"
+keywords = ["s3-filebrowser", "bucket-listing"]
+categories = ["filesystem", "embedded", "development-tools", "visualization"]
+include = ["/src", "LICENSE"]
+exclude = [".github", ".gitignore", "README.md"]
 
 [[bin]]
 name = "lists3"

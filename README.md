@@ -56,7 +56,7 @@ curl -o lists3-windows-amd64.zip -LH "Accept: application/octet-stream" "https:/
 [https://crates.io/crates/lists3][crate]
 
 ### Cargo Docs - Official Runbook
-[https://docs.rs/lists3/latest/lists3/][docs]
+[https://docs.rs/crate/lists3][docs]
 
 **Generator**
 ```shell
@@ -87,4 +87,4 @@ Licensed under the [MIT License][license]
 [crate]: https://crates.io/crates/lists3
 [gh-checks]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yml
 [crates-logo]: https://img.shields.io/crates/v/lists3.svg
-[docs]: https://docs.rs/lists3/latest/
+[docs]: https://docs.rs/crate/lists3

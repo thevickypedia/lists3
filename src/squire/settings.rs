@@ -27,7 +27,14 @@ fn parse_vec(value: &str) -> Option<Vec<String>> {
         return None;
     }
     match serde_json::from_str::<Vec<String>>(value) {
-        Ok(parsed) => Some(parsed),
+        Ok(mut parsed) => {
+            for elem in &mut parsed {
+                if !elem.ends_with('/') {
+                    elem.push('/');
+                }
+            }
+            Some(parsed)
+        }
         Err(err) => {
             eprintln!("{:?}", err);
             exit(1)

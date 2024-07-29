@@ -36,7 +36,7 @@ pub fn arguments(
                     ("--proxy | -p", "Proxy server's path (eg: https://example.com/proxy)"),
                     ("--style | -s", "Styling for the UI (eg: vanilla)"),
                     ("--version | -v", "Get the package version.")
-                ].iter().cloned().collect();
+                ].to_vec();
                 let longest_key = options.iter().map(|(k, _)| k.len()).max().unwrap_or(0);
                 let pretext = "\n* ";
                 let choices: String = options.iter().map(|(k, v)| {
@@ -51,7 +51,7 @@ pub fn arguments(
             "-b" | "--bucket" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    bucket = args[i].clone();
+                    bucket.clone_from(&args[i]);
                 } else {
                     eprintln!("--bucket requires a value.");
                     exit(1)
@@ -60,7 +60,7 @@ pub fn arguments(
             "-r" | "--region" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    region = args[i].clone();
+                    region.clone_from(&args[i]);
                 } else {
                     eprintln!("--region requires a value.");
                     exit(1)
@@ -69,7 +69,7 @@ pub fn arguments(
             "-f" | "--filter" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    filter = args[i].clone();
+                    filter.clone_from(&args[i]);
                 } else {
                     eprintln!("--filter requires a value.");
                     exit(1)
@@ -78,7 +78,7 @@ pub fn arguments(
             "-i" | "--ignore" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    ignore = args[i].clone();
+                    ignore.clone_from(&args[i]);
                 } else {
                     eprintln!("--ignore requires a value.");
                     exit(1)
@@ -87,7 +87,7 @@ pub fn arguments(
             "-o" | "--object" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    object = args[i].clone();
+                    object.clone_from(&args[i]);
                 } else {
                     eprintln!("--object requires a value.");
                     exit(1)
@@ -96,7 +96,7 @@ pub fn arguments(
             "-p" | "--proxy" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    proxy = args[i].clone();
+                    proxy.clone_from(&args[i]);
                 } else {
                     eprintln!("--proxy requires a value.");
                     exit(1)
@@ -105,7 +105,7 @@ pub fn arguments(
             "-s" | "--style" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
-                    style = args[i].clone();
+                    style.clone_from(&args[i]);
                 } else {
                     eprintln!("--style requires a value.");
                     exit(1)
