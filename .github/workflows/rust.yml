@@ -1,0 +1,14 @@
+name: Build, Test and Upload Artifact
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/**'
+
+jobs:
+  listS3:
+    uses: thevickypedia/rust-releaser/.github/workflows/entrypoint.yml@main
+    secrets: inherit
