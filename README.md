@@ -7,8 +7,7 @@
 [![build][gh-logo]][build]
 
 #### Summary
-[`lists3`][repo] is a light-weight CLI tool to create a file browser for S3 buckets provisioning bucket listing.
-
+[`lists3`][repo] is a light-weight CLI tool to create a file browser for S3 buckets provisioning bucket listing
 <details>
 <summary><strong>Download pre-compiled OS specific executable</strong></summary>
 
@@ -41,11 +40,11 @@ Invoke-WebRequest -Uri https://github.com/thevickypedia/lists3/releases/latest/d
 ### Arguments
 
 - **--bucket / -b**: Bucket name for which listing has to be created.
+- **--website / -w**: Website URL that has to be allowed through CORS configuration. Defaults to bucket name with `https` protocol.
 - **--region / -r**: Region name where the bucket is present. **Fallback:** Default Region
 - **--filter / -f**: S3 prefix to filter (**eg:** `["github/"]`) **Fallback:** `[]`
 - **--ignore / -i**: Objects to be ignored (**eg:** `["github/.DS_Store"]`) **Fallback:** `[]`
 - **--object / -o**: Object name to upload in s3 (**eg:** `list.html`) **Fallback:** `list`
-- **--proxy / -p**: Proxy server's path (**eg:** https://example.com/proxy) **Fallback:** https://jarvis.vigneshrao.com/proxy
 - **--style / -s**: Styling for the UI (**eg:** `vanilla`) **Fallback:** bootstrap
 
 ### Sample
@@ -90,7 +89,7 @@ Licensed under the [MIT License][license]
 [license]: https://github.com/thevickypedia/lists3/blob/main/LICENSE
 [build]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yaml
 [rust-logo]: https://img.shields.io/badge/Made%20with-Rust-black?style=for-the-badge&logo=Rust
-[gh-logo]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yaml/badge.svg
+[gh-logo]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yml/badge.svg
 [crate]: https://crates.io/crates/lists3
 [gh-checks]: https://github.com/thevickypedia/lists3/actions/workflows/rust.yml
 [crates-logo]: https://img.shields.io/crates/v/lists3.svg

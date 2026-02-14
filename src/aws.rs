@@ -4,9 +4,10 @@ use std::process::exit;
 use aws_config::meta::region::RegionProviderChain;
 use aws_config::Region;
 use aws_sdk_s3::Client;
+use aws_sdk_s3::types::{CorsConfiguration, CorsRule};
 use aws_sdk_s3::primitives::{ByteStream, SdkBody};
 use aws_sdk_s3::types::Bucket;
-
+use url::Url;
 use crate::squire;
 
 /// Creates an AWS S3 client using the specified region.
@@ -87,16 +88,104 @@ pub async fn upload_object(
     let byte_stream = ByteStream::new(SdkBody::from(data.to_owned()));
     match client
         .put_object()
-        .bucket(&bucket_name.to_string())
-        .key(&file_name.to_string())  // object name
+        .bucket(bucket_name.to_string())
+        .key(file_name.to_string())  // object name
         .body(byte_stream)
         .content_type("text/html")
         .send()
         .await {
-        Ok(_) => println!("{:?} has been uploaded as HTML", &file_name),
+        Ok(_) => println!("{:?} has been uploaded as HTML to {:?}", &file_name, &bucket_name),
         Err(err) => {
             eprintln!("Unable to upload to S3: {:?}", err.source().unwrap());
             exit(1)
         }
+    }
+}
+
+/// Updates CORS configuration to include the website as allowed origin.
+///
+/// # Arguments
+///
+/// * `client` - A reference to the AWS S3 client.
+/// * `bucket_name` - The name of the bucket to upload the object to.
+/// * `website` - Website URL to add to CORS as allowed origin.
+pub async fn update_cors(
+    client: &Client,
+    bucket_name: &String,
+    website: &Url
+) {
+    let origin = website.to_string();
+
+    // Build the new rule
+    let new_rule = match CorsRule::builder()
+        .allowed_origins(website.to_string())
+        .allowed_methods("GET")
+        .max_age_seconds(3000)
+        .build()
+    {
+        Ok(rule) => rule,
+        Err(err) => {
+            eprintln!("Unable to create CORS rule: {:?}", err.source().unwrap());
+            exit(1)
+        },
+    };
+
+    // Get existing CORS config (if any)
+    let existing_rules = match client
+        .get_bucket_cors()
+        .bucket(bucket_name)
+        .send()
+        .await
+    {
+        Ok(output) => output.cors_rules.unwrap_or_default(),
+        Err(_) => {
+            // No existing config or other error — treat as empty
+            Vec::new()
+        }
+    };
+
+    // Check if equivalent rule already exists
+    let rule_exists = existing_rules.iter().any(|rule| {
+        rule.allowed_origins()
+            .contains(&origin)
+        &&
+        rule.allowed_methods()
+            .contains(&"GET".to_string())
+        &&
+        rule.max_age_seconds() == Some(3000)
+    });
+
+    if rule_exists {
+        println!("CORS rule already exists for {}", origin);
+        return;
+    }
+
+    // Merge new rule
+    let mut updated_rules = existing_rules;
+    updated_rules.push(new_rule);
+
+    let cors_config = match CorsConfiguration::builder()
+        .set_cors_rules(Some(updated_rules))
+        .build()
+    {
+        Ok(config) => config,
+        Err(err) => {
+            eprintln!("Unable to create CORS config: {:?}", err.source().unwrap());
+            exit(1)
+        },
+    };
+
+    match client
+        .put_bucket_cors()
+        .bucket(bucket_name)
+        .cors_configuration(cors_config)
+        .send()
+        .await
+    {
+        Ok(_) => println!("CORS configuration has been updated for: {:?}", &website.to_string()),
+        Err(err) => {
+            eprintln!("Unable to update CORS configuration: {:?}", err.source().unwrap());
+            exit(1)
+        },
     }
 }

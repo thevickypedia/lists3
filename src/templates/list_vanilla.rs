@@ -95,11 +95,9 @@ pub fn get_content() -> String {
             let pretext = document.getElementById('pretext');
             pretext.innerHTML = "<a href='https://crates.io/crates/lists3'>Rustic Bucket Listing - v{{ cargo_version }}</a>";
 
-            let origin = `http://${bucketName}.s3-${regionName}.amazonaws.com`
+            let origin = `https://s3.${regionName}.amazonaws.com/${bucketName}`
             let responseType = "application/xml"
-            let proxy = "{{ proxy_server }}"
-            let endpoint = `${proxy}?origin=${origin}&output=${responseType}`
-            http.open('get', endpoint, true)
+            http.open('get', origin, false)
             http.onreadystatechange = function () {
                 handleList(folderNames, ignoreObjects)
             };

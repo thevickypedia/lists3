@@ -15,11 +15,11 @@ pub fn arguments(
 
     let mut version = false;
     let mut bucket = String::new();
+    let mut website = String::new();
     let mut region = String::new();
     let mut filter = String::new();
     let mut ignore = String::new();
     let mut object = String::new();
-    let mut proxy = String::new();
     let mut style = String::new();
 
     // Loop through the command-line arguments and parse them.
@@ -27,16 +27,14 @@ pub fn arguments(
     while i < args.len() {
         match args[i].as_str() {
             "-h" | "--help" => {
-                let options: Vec<_> = vec![
-                    ("--bucket | -b", "Bucket name for which listing has to be created"),
+                let options: Vec<_> = [("--bucket | -b", "Bucket name for which listing has to be created"),
+                    ("--website | -w", "Website URL that has to be allowed through CORS configuration"),
                     ("--region | -r", "Region name where the bucket is present"),
                     ("--filter | -f", "S3 prefix to filter (eg: '[\"github/\"]')"),
                     ("--ignore | -i", "Objects to be ignored (eg: '[\"github/.DS_Store\"]')"),
                     ("--object | -o", "Object name to upload in s3 (eg: list.html)"),
-                    ("--proxy | -p", "Proxy server's path (eg: https://example.com/proxy)"),
                     ("--style | -s", "Styling for the UI (eg: vanilla)"),
-                    ("--version | -v", "Get the package version.")
-                ].to_vec();
+                    ("--version | -v", "Get the package version.")].to_vec();
                 let longest_key = options.iter().map(|(k, _)| k.len()).max().unwrap_or(0);
                 let pretext = "\n* ";
                 let choices: String = options.iter().map(|(k, v)| {
@@ -52,6 +50,15 @@ pub fn arguments(
                 i += 1; // Move to the next argument.
                 if i < args.len() {
                     bucket.clone_from(&args[i]);
+                } else {
+                    eprintln!("--bucket requires a value.");
+                    exit(1)
+                }
+            }
+            "-w" | "--website" => {
+                i += 1; // Move to the next argument.
+                if i < args.len() {
+                    website.clone_from(&args[i]);
                 } else {
                     eprintln!("--bucket requires a value.");
                     exit(1)
@@ -93,15 +100,6 @@ pub fn arguments(
                     exit(1)
                 }
             }
-            "-p" | "--proxy" => {
-                i += 1; // Move to the next argument.
-                if i < args.len() {
-                    proxy.clone_from(&args[i]);
-                } else {
-                    eprintln!("--proxy requires a value.");
-                    exit(1)
-                }
-            }
             "-s" | "--style" => {
                 i += 1; // Move to the next argument.
                 if i < args.len() {
@@ -125,5 +123,8 @@ pub fn arguments(
     if object.is_empty() {
         object = "list".to_string()
     }
-    settings::parse_config(bucket, region, filter, ignore, object, proxy, style)
+    if website.is_empty() {
+        website = format!("https://{}", bucket);
+    }
+    settings::parse_config(bucket, website, region, filter, ignore, object, style)
 }

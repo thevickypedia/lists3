@@ -66,11 +66,10 @@ pub fn get_content() -> String {
         /* The variable http will hold our new XMLHttpRequest object. */
         let http = createRequestObject();
 
-        function getList(bucketName, regionName, folderNames, ignoreObjects, proxyServer) {
-            let origin = `http://${bucketName}.s3-${regionName}.amazonaws.com`
+        function getList(bucketName, regionName, folderNames, ignoreObjects) {
+            let origin = `https://s3.${regionName}.amazonaws.com/${bucketName}`
             let responseType = "application/xml"
-            let endpoint = `${proxyServer}?origin=${origin}&output=${responseType}`
-            http.open('get', endpoint, false)
+            http.open('get', origin, false)
             http.send();
             if (http.status === 200) {
                 return handleList(http.responseXML, folderNames, ignoreObjects);
@@ -195,11 +194,11 @@ pub fn get_content() -> String {
             return stripped;
         }
 
-        function renderTable(bucketName, regionName, folderNames, ignoreObjects, proxyServer) {
+        function renderTable(bucketName, regionName, folderNames, ignoreObjects) {
             let pretext = document.getElementById('pretext');
             pretext.innerHTML = "<a href='https://crates.io/crates/lists3'>Rustic Bucket Listing - v{{ cargo_version }}</a>";
 
-            const data = getList(bucketName, regionName, folderNames, ignoreObjects, proxyServer);
+            const data = getList(bucketName, regionName, folderNames, ignoreObjects);
 
             // Populate table headers
             const tableHeaders = jQuery('#table-headers');
@@ -274,7 +273,6 @@ pub fn get_content() -> String {
     regionName="{{ region_name }}",
     folderNames={{ folder_names }},
     ignoreObjects={{ ignore_objects }},
-    proxyServer="{{ proxy_server }}"
 );'>
 <pre><small id="pretext"></small></pre>
 <div class="corner">

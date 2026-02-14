@@ -1,7 +1,6 @@
 #![allow(rustdoc::bare_urls)]
 #![doc = include_str!("../README.md")]
 
-use std;
 
 use aws_config::Region;
 
@@ -33,7 +32,6 @@ async fn generate_html(
         region_name => region.to_string(),
         folder_names => config.filter,
         ignore_objects => config.ignore,
-        proxy_server => config.proxy.to_string(),
         cargo_version => metadata.pkg_version
     ));
     html_data.unwrap()
@@ -66,4 +64,5 @@ pub async fn initiate() {
     }
     let data = generate_html(&config, &region, &metadata).await;
     aws::upload_object(&aws_client, &config.bucket, &data, &config.object).await;
+    aws::update_cors(&aws_client, &config.bucket, &config.website).await;
 }
