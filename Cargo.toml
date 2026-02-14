@@ -5,7 +5,7 @@ description = "Light-weight CLI tool to create a file browser for S3 buckets pro
 edition = "2021"
 authors = ["Vignesh Rao"]
 license = "MIT"
-rust-version = "1.80.0"
+rust-version = "1.93.1"
 documentation = "https://docs.rs/lists3/latest/lists3"
 homepage = "https://github.com/thevickypedia/lists3"
 repository = "https://github.com/thevickypedia/lists3"
@@ -30,10 +30,9 @@ path = "src/main.rs"
 rustdoc-args = ["--document-private-items"]
 
 [dependencies]
-minijinja = { version =  "2.1.0", features = ["loader"] }
-url = "2.5.2"
-serde = { version = "1.0.204", features = ["derive"] }
-serde_json = "1.0.121"
-aws-sdk-s3 = { version = "1.42.0", features = ["behavior-version-latest"] }
-aws-config = { version = "1.5.4", features = ["behavior-version-latest"] }
-tokio = { version = "1.39.2", features = ["full"] }
+minijinja = { version =  "2.15.1", features = ["loader"] }
+url = "2.5.8"
+serde_json = "1.0.149"
+aws-sdk-s3 = { version = "1.123.0", features = ["behavior-version-latest"] }
+aws-config = { version = "1.8.14", features = ["behavior-version-latest"] }
+tokio = { version = "1.49.0", features = ["full"] }
