@@ -114,11 +114,11 @@ pub async fn update_cors(
     bucket_name: &String,
     website: &Url
 ) {
-    let origin = website.to_string();
+    let origin = website.to_string().strip_suffix("/").unwrap().to_string();
 
     // Build the new rule
     let new_rule = match CorsRule::builder()
-        .allowed_origins(website.to_string())
+        .allowed_origins(&origin)
         .allowed_methods("GET")
         .max_age_seconds(3000)
         .build()
@@ -182,7 +182,7 @@ pub async fn update_cors(
         .send()
         .await
     {
-        Ok(_) => println!("CORS configuration has been updated for: {:?}", &website.to_string()),
+        Ok(_) => println!("CORS configuration has been updated for: {:?}", origin),
         Err(err) => {
             eprintln!("Unable to update CORS configuration: {:?}", err.source().unwrap());
             exit(1)
