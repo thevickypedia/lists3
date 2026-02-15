@@ -1,6 +1,6 @@
 [package]
 name = "lists3"
-version = "0.1.0"
+version = "0.1.1"
 description = "Light-weight CLI tool to create a file browser for S3 buckets provisioning bucket listing."
 edition = "2021"
 authors = ["Vignesh Rao"]
